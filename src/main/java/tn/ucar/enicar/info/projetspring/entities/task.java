@@ -25,7 +25,7 @@ public class task implements Serializable{
     private Date deadline ;
     @Enumerated(EnumType.STRING)
     private status Status ;
-    private int score ;
+    private int note ;
 
     @ManyToOne
     user user;
