@@ -22,6 +22,7 @@ import java.util.Set;
     private String Password;
     @Enumerated(EnumType.STRING)
     private role Role;
+    private int score ;
 
     @ManyToMany(cascade = CascadeType.ALL)
     private Set<event> events;
