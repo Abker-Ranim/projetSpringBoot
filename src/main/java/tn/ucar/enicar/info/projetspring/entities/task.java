@@ -28,7 +28,7 @@ public class task implements Serializable{
     private int note ;
 
     @ManyToOne
-    user user;
+    User user;
 
     @ManyToOne
     event event ;

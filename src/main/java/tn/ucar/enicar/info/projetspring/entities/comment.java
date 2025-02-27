@@ -17,7 +17,7 @@ public class comment implements Serializable{
     private String content;
 
     @ManyToOne
-    user user;
+    User user;
 
     @ManyToOne
     task task;
