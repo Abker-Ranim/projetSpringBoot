@@ -24,7 +24,7 @@ public class event implements Serializable{
     private String location ;
 
     @ManyToMany(mappedBy="events", cascade = CascadeType.ALL)
-    private Set<user> users;
+    private Set<User> users;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="event")
     private Set<task> tasks;

@@ -18,5 +18,5 @@ public class notification implements Serializable{
     private String content;
 
     @ManyToMany(mappedBy="notifications", cascade = CascadeType.ALL)
-    private Set<user> users;
+    private Set<User> users;
 }

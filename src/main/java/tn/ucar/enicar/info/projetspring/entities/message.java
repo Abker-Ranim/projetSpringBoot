@@ -17,7 +17,7 @@ public class message implements Serializable {
     private String content;
 
     @ManyToOne
-    user user;
+    User user;
 
     @ManyToOne
     discussion discussion;

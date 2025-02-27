@@ -12,16 +12,16 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 
-    public class user  implements Serializable {
+    public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String Firstname;
-    private String Lastname;
-    private String Email;
-    private String Password;
+    private String firstname;
+    private String lastname;
+    private String email;
+    private String password;
     @Enumerated(EnumType.STRING)
-    private role Role;
+    private Role role;
     private int score ;
 
     @ManyToMany(cascade = CascadeType.ALL)
