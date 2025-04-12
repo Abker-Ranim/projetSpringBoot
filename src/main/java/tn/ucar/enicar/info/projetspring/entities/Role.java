@@ -30,11 +30,13 @@ public enum Role {
             VOLUNTARY_DELETE,
             VOLUNTARY_CREATE
     )),
-    MANAGER(Set.of(
-                    MANAGER_READ,
-            MANAGER_UPDATE,
-            MANAGER_CREATE
-            ));
+    RESPONSIBLE(Set.of(
+            VOLUNTARY_READ,
+            VOLUNTARY_UPDATE,
+            VOLUNTARY_DELETE,
+            VOLUNTARY_CREATE
+            // Ajoutez d'autres permissions spécifiques si nécessaire
+    ));
 
     @Getter
     private final Set<Permission> permissions;
