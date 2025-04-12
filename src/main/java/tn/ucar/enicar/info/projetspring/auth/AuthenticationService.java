@@ -32,7 +32,7 @@ public AuthenticationResponse register (RegisterRequest request){
            .lastname(request.getLastname())
            .email(request.getEmail())
            .password(passwordEncoder.encode(request.getPassword()))
-           .role(request.getRole() != null ? request.getRole() : Role.VOLUNTARY)
+           .role(request.getRole() != null ? request.getRole() : Role.USER)
            .build();
    var savedUser =repository.save(user);
 
