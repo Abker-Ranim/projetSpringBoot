@@ -1,5 +1,6 @@
 package tn.ucar.enicar.info.projetspring.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
     private int score ;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Token>tokens;
 
     @ManyToMany(cascade = CascadeType.ALL)
