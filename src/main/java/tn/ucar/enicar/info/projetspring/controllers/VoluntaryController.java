@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/management")
 
-public class ManagementController {
+public class VoluntaryController {
 
     @GetMapping
     public String get() {
