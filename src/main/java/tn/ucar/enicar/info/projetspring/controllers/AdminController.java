@@ -1,20 +1,15 @@
 package tn.ucar.enicar.info.projetspring.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import tn.ucar.enicar.info.projetspring.auth.AuthenticationResponse;
-import tn.ucar.enicar.info.projetspring.auth.RegisterRequest;
-import tn.ucar.enicar.info.projetspring.sevices.AdminService;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@RequiredArgsConstructor // Ajoutez cette annotation
+@RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
-    private final AdminService adminService; // Gardez cette déclaration
 
     @GetMapping
     @PreAuthorize("hasAuthority('admin:read')")
@@ -40,10 +35,5 @@ public class AdminController {
         return "DELETE:: admin controller";
     }
 
-    @PostMapping("/create-manager")
-    @PreAuthorize("hasAuthority('admin:create')")
-    public ResponseEntity<AuthenticationResponse> createManager(
-            @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(adminService.createManager(request));
-    }
+
 }
