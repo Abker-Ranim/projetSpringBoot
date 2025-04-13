@@ -19,8 +19,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 import static org.springframework.http.HttpMethod.*;
-import static tn.ucar.enicar.info.projetspring.entities.Permission.*;
-import static tn.ucar.enicar.info.projetspring.entities.Role.*;
 
 @Configuration
 @EnableWebSecurity
@@ -37,17 +35,23 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/v1/auth/**", "/api/v1/rolerequest/submit/**")
+                        req.requestMatchers("/api/v1/auth/**")
                                 .permitAll()
-                                .requestMatchers("/api/v1/rolerequest/approve/**", "/api/v1/rolerequest/reject/**", "/api/v1/rolerequest/pending")
-                                .hasRole(ADMIN.name())
-                                .requestMatchers("/api/v1/admin/**").hasRole(ADMIN.name())
-                                .requestMatchers(POST, "/api/v1/admin/**").hasAuthority(ADMIN_CREATE.getPermission())
-                                .requestMatchers("/api/v1/voluntary/**").hasAnyRole(ADMIN.name(), VOLUNTARY.name(), RESPONSIBLE.name())
-                                .requestMatchers(GET, "/api/v1/voluntary/**").hasAnyAuthority(ADMIN_READ.name(), VOLUNTARY_READ.name())
-                                .requestMatchers(POST, "/api/v1/voluntary/**").hasAnyAuthority(ADMIN_CREATE.name(), VOLUNTARY_CREATE.name())
-                                .requestMatchers(PUT, "/api/v1/voluntary/**").hasAnyAuthority(ADMIN_UPDATE.name(), VOLUNTARY_UPDATE.name())
-                                .requestMatchers(DELETE, "/api/v1/voluntary/**").hasAnyAuthority(ADMIN_DELETE.name(), VOLUNTARY_DELETE.name())
+                                .requestMatchers(POST, "/api/v1/event/**").hasRole("ADMIN")
+                                .requestMatchers(POST, "/api/v1/team/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/event/**").hasAnyRole("ADMIN")
+                                .requestMatchers("/api/v1/task/create").hasAnyRole("RESPONSIBLE")
+                                .requestMatchers("/api/v1/task/{taskId}/update-status").hasRole("VOLUNTARY")
+                                .requestMatchers("/api/v1/task/{taskId}/assign-note").hasRole("RESPONSIBLE")
+                                .requestMatchers("/api/v1/role-request/apply").hasAnyRole("USER", "VOLUNTARY")
+                                .requestMatchers("/api/v1/role-request/apply-volunteer").hasAnyRole("USER", "VOLUNTARY")
+                                .requestMatchers("/api/v1/role-request/{requestId}/review").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/role-request/{requestId}/review-volunteer").hasRole("RESPONSIBLE")
+                                .requestMatchers("/api/v1/role-request/pending").hasAnyRole("ADMIN", "RESPONSIBLE")
+                                .requestMatchers("/api/v1/team/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/task/event/{eventId}").hasAnyRole("ADMIN", "RESPONSIBLE")
+
+
                                 .anyRequest()
                                 .authenticated()
                 )
