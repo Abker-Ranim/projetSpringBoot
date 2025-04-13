@@ -9,26 +9,34 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Builder
 public class RoleRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private Role requestedRole; // Utilise l'enum Role
+
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status; // Utilise l'enum RequestStatus
+
+    private String comments;
+
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    private Role requestedRole; // VOLUNTARY ou RESPONSIBLE
+    @ManyToOne
+    @JsonIgnore
+    private task task;
 
-    @Enumerated(EnumType.STRING)
-    private RequestStatus status; // PENDING, APPROVED, REJECTED
+    @ManyToOne
+    @JsonIgnore
+    private Team team;
 
-    private String comments; // Commentaire optionnel de l'admin
-
-    public String getUserEmail() {
-        return user != null ? user.getEmail() : null;
-    }
+    @ManyToOne
+    @JsonIgnore
+    private event event;
 }

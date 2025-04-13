@@ -12,4 +12,7 @@ public class RoleRequestDTO {
     private String status;
     private String comments;
     private String userEmail;
+    private Long eventId;
+    private Long taskId;
+    private Long teamId;
 }

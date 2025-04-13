@@ -19,6 +19,20 @@ public enum Role {
             ADMIN_UPDATE,
             ADMIN_DELETE,
             ADMIN_CREATE,
+            RESPONSIBLE_READ,
+            RESPONSIBLE_UPDATE,
+            RESPONSIBLE_DELETE,
+            RESPONSIBLE_CREATE,
+            VOLUNTARY_READ,
+            VOLUNTARY_UPDATE,
+            VOLUNTARY_DELETE,
+            VOLUNTARY_CREATE
+    )),
+    RESPONSIBLE(Set.of(
+            RESPONSIBLE_READ,
+            RESPONSIBLE_UPDATE,
+            RESPONSIBLE_DELETE,
+            RESPONSIBLE_CREATE,
             VOLUNTARY_READ,
             VOLUNTARY_UPDATE,
             VOLUNTARY_DELETE,
@@ -29,14 +43,8 @@ public enum Role {
             VOLUNTARY_UPDATE,
             VOLUNTARY_DELETE,
             VOLUNTARY_CREATE
-    )),
-    RESPONSIBLE(Set.of(
-            VOLUNTARY_READ,
-            VOLUNTARY_UPDATE,
-            VOLUNTARY_DELETE,
-            VOLUNTARY_CREATE
-            // Ajoutez d'autres permissions spécifiques si nécessaire
     ));
+
 
     @Getter
     private final Set<Permission> permissions;

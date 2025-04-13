@@ -7,4 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 public class RoleRequestInputDTO {
     private String requestedRole;
+    private Long eventId;
+    private Long taskId;
+    private Long teamId;
 }

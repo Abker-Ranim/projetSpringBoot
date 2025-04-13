@@ -7,6 +7,6 @@ import tn.ucar.enicar.info.projetspring.entities.RoleRequest;
 import java.util.List;
 
 public interface RoleRequestRepository extends JpaRepository<RoleRequest, Long> {
-    List<RoleRequest> findByUserId(Integer userId);
     List<RoleRequest> findByStatus(RequestStatus status);
+    List<RoleRequest> findByStatusAndTaskIdIn(RequestStatus status, List<Long> taskIds);
 }
