@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
     private String firstname;
     private String lastname;
     private String email;
+    @JsonIgnore
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -34,11 +36,28 @@ import org.springframework.security.core.userdetails.UserDetails;
     @JsonIgnore
     private List<Token>tokens;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    // Événements auxquels l'utilisateur participe
+    @ManyToMany(cascade = CascadeType.ALL )
+    @JoinTable(
+            name = "user_event",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
     private Set<event> events;
+    // Événements dont l'utilisateur est responsable
+    @ManyToMany(mappedBy = "responsibles", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<event> responsibleEvents;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="user")
-    private Set<task> tasks;
+    // Tâches créées par l'utilisateur (en tant que responsable)
+    @OneToMany(mappedBy = "responsible", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<task> createdTasks;
+
+    // Tâches auxquelles l'utilisateur est volontaire
+    @ManyToMany(mappedBy = "volunteers", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<task> volunteerTasks;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="user")
     private Set<comment> comments;
@@ -48,7 +67,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="user")
     private Set<message> messages;
+    @OneToMany(mappedBy = "responsible")
+    @JsonIgnore
+    private Set<Team> responsibleTeams;
 
+    @ManyToMany(mappedBy = "volunteers")
+    @JsonIgnore
+    private Set<Team> voluntaryTeams;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();
@@ -82,5 +107,17 @@ import org.springframework.security.core.userdetails.UserDetails;
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
