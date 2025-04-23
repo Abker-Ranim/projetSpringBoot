@@ -4,13 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-import java.util.Date;
+import java.util.*;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -29,7 +28,7 @@ public class task implements Serializable{
     private Date deadline ;
     @Enumerated(EnumType.STRING)
     private status Status ;
-    private int note ;
+    private Integer note ;
 
     // Responsable qui a créé la tâche
     @ManyToOne
@@ -53,9 +52,9 @@ public class task implements Serializable{
     @JsonIgnore
     private Set<User> volunteers = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="task")
-    @JsonIgnore
-    private Set<comment> comments;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<comment> comments = new ArrayList<>();
 
 
 }
