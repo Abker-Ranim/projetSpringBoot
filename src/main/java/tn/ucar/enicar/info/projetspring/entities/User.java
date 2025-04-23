@@ -30,7 +30,7 @@ import org.springframework.security.core.userdetails.UserDetails;
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-    private int score ;
+    private Integer score ;
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore

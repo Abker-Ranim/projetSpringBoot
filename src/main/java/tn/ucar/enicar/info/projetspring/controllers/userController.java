@@ -7,9 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tn.ucar.enicar.info.projetspring.entities.Role;
 import tn.ucar.enicar.info.projetspring.entities.User;
-import tn.ucar.enicar.info.projetspring.entities.UserScoreDTO;
 import tn.ucar.enicar.info.projetspring.sevices.UserService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -17,5 +18,12 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/user")
 public class userController {
+    private final UserService userService;
 
+    @GetMapping("/{userId}/score")
+    public ResponseEntity<Integer> getUserScore(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal User authenticatedUser) {
+        return ResponseEntity.ok(userService.calculateUserScore(userId));
+    }
 }
