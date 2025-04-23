@@ -37,19 +37,23 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers("/api/v1/auth/**")
                                 .permitAll()
-                                .requestMatchers(POST, "/api/v1/event/**").hasRole("ADMIN")
-                                .requestMatchers(POST, "/api/v1/team/**").hasRole("ADMIN")
-                                .requestMatchers("/api/v1/event/**").hasAnyRole("ADMIN")
-                                .requestMatchers("/api/v1/task/create").hasAnyRole("RESPONSIBLE")
+                                .requestMatchers("/api/v1/auth/**").permitAll()
+                                .requestMatchers("/api/v1/event/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/task/create").hasRole("RESPONSIBLE")
                                 .requestMatchers("/api/v1/task/{taskId}/update-status").hasRole("VOLUNTARY")
                                 .requestMatchers("/api/v1/task/{taskId}/assign-note").hasRole("RESPONSIBLE")
-                                .requestMatchers("/api/v1/role-request/apply").hasAnyRole("USER", "VOLUNTARY")
-                                .requestMatchers("/api/v1/role-request/apply-volunteer").hasAnyRole("USER", "VOLUNTARY")
+                                .requestMatchers("/api/v1/role-request/apply").hasAnyRole("USER")
+                                .requestMatchers("/api/v1/role-request/apply-volunteer").hasAnyRole("USER")
                                 .requestMatchers("/api/v1/role-request/{requestId}/review").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/role-request/{requestId}/review-volunteer").hasRole("RESPONSIBLE")
                                 .requestMatchers("/api/v1/role-request/pending").hasAnyRole("ADMIN", "RESPONSIBLE")
+                                .requestMatchers("/api/v1/role-request/pending-volunteer").hasRole("RESPONSIBLE")
                                 .requestMatchers("/api/v1/team/**").hasRole("ADMIN")
-                                .requestMatchers("/api/v1/task/event/{eventId}").hasAnyRole("ADMIN", "RESPONSIBLE")
+                                .requestMatchers("/api/v1/comment/**").permitAll()
+                                .requestMatchers("/api/v1/user/**").permitAll()
+                                .requestMatchers("/api/v1/leaderboard/**").permitAll()
+
+
 
 
                                 .anyRequest()
