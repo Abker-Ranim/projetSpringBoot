@@ -40,4 +40,9 @@ public class RoleRequest {
     @ManyToOne
     @JsonIgnore
     private event event;
+
+    @OneToOne
+    @JoinColumn(name = "candidature_id")
+    @JsonIgnore
+    private Candidature candidature; // Nouvelle relation pour VOLUNTARY
 }

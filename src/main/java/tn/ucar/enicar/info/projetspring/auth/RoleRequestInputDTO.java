@@ -10,4 +10,5 @@ public class RoleRequestInputDTO {
     private Long eventId;
     private Long taskId;
     private Long teamId;
+    private String description;
 }

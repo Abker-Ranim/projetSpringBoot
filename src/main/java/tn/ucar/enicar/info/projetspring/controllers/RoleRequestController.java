@@ -1,12 +1,15 @@
 package tn.ucar.enicar.info.projetspring.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.ucar.enicar.info.projetspring.auth.RoleRequestDTO;
 import tn.ucar.enicar.info.projetspring.auth.RoleRequestInputDTO;
+import tn.ucar.enicar.info.projetspring.entities.CandidatureDTO;
 import tn.ucar.enicar.info.projetspring.entities.User;
 import tn.ucar.enicar.info.projetspring.sevices.RoleRequestService;
 
@@ -36,30 +39,36 @@ public class RoleRequestController {
         return ResponseEntity.ok(roleRequestService.reviewRoleRequest(requestId, status, comments));
     }
 
-    // Étape 5 : Utilisateur postule pour devenir VOLUNTARY
     @PostMapping("/apply-volunteer")
     public ResponseEntity<RoleRequestDTO> applyForVolunteer(
-            @RequestBody RoleRequestInputDTO request,
+            @RequestPart("request") @Valid RoleRequestInputDTO request,
+            @RequestPart("cv") MultipartFile cv,
             @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(roleRequestService.createVolunteerRequest(request, user));
+        return ResponseEntity.ok(roleRequestService.createVolunteerRequest(request, cv, user));
     }
-
-    // Étape 6 : Responsible approuve/rejette une demande de VOLUNTARY
     @PutMapping("/{requestId}/review-volunteer")
     @PreAuthorize("hasRole('RESPONSIBLE')")
     public ResponseEntity<RoleRequestDTO> reviewVolunteerRequest(
             @PathVariable Long requestId,
             @RequestParam String status,
-            @RequestParam(required = false) String comments,
+            @RequestParam(required = false) String comments)
+            {
+        return ResponseEntity.ok(roleRequestService.reviewVolunteerRequest(requestId, status, comments));
+    }
+    // Liste des candidatures VOLUNTARY en attente
+    @GetMapping("/pending-volunteer")
+    @PreAuthorize("hasRole('RESPONSIBLE')")
+    public ResponseEntity<List<RoleRequestDTO>> getPendingVolunteerCandidatures(
             @AuthenticationPrincipal User responsible) {
-        return ResponseEntity.ok(roleRequestService.reviewVolunteerRequest(requestId, status, comments, responsible));
+        return ResponseEntity.ok(roleRequestService.getPendingVolunteerCandidatures(responsible));
     }
 
-    // Liste des demandes en attente (pour admin ou responsible)
+    // Liste des demandes en attente (RESPONSIBLE)
     @GetMapping("/pending")
     @PreAuthorize("hasAnyRole('ADMIN', 'RESPONSIBLE')")
     public ResponseEntity<List<RoleRequestDTO>> getPendingRequests(
             @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(roleRequestService.getPendingRequests(user));
     }
+
 }

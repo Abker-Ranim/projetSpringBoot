@@ -2,6 +2,8 @@ package tn.ucar.enicar.info.projetspring.auth;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,4 +17,7 @@ public class RoleRequestDTO {
     private Long eventId;
     private Long taskId;
     private Long teamId;
+    private String description; // Pour VOLUNTARY
+    private String cvPath; // Pour VOLUNTARY
+    private LocalDateTime submittedAt; // Pour VOLUNTARY
 }
