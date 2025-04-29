@@ -24,9 +24,9 @@ public class RoleRequestController {
     // Étape 2 : Utilisateur postule pour devenir RESPONSIBLE
     @PostMapping("/apply")
     public ResponseEntity<RoleRequestDTO> applyForRole(
-            @RequestBody RoleRequestInputDTO request,
+            @RequestBody @Valid RoleRequestInputDTO request,
             @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(roleRequestService.createRoleRequest(request, user));
+        return ResponseEntity.ok(roleRequestService.createRoleRequest(request, request.getExperience(), request.getDescription(), user));
     }
 
     // Étape 3 : Admin approuve/rejette une demande de RESPONSIBLE

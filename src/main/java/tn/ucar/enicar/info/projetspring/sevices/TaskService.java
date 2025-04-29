@@ -35,7 +35,6 @@ public class TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("Team not found"))
                 : null;
 
-        // Correction : Utiliser task.builder() directement depuis la classe task
         task newTask = task.builder()
                 .title(taskDTO.getTitle())
                 .description(taskDTO.getDescription())
@@ -58,43 +57,36 @@ public class TaskService {
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
-    // Nouveau : Volontaire modifie le statut d'une tâche
+
     public TaskDTO updateTaskStatus(Long taskId, status newStatus, User volunteer) {
         task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        // Vérifier que l'utilisateur est un volontaire assigné à la tâche
         if (!task.getVolunteers().contains(volunteer)) {
             throw new IllegalStateException("User is not a volunteer for this task");
         }
 
-        // Mettre à jour le statut
         task.setStatus(newStatus);
         task updatedTask = taskRepository.save(task);
         return mapToDTO(updatedTask);
     }
 
-    // Nouveau : Responsable attribue une note à une tâche terminée
     public TaskDTO assignTaskNote(Long taskId, int note, User responsible) {
         task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        // Vérifier que l'utilisateur est le responsable de la tâche
         if (!task.getResponsible().getId().equals(responsible.getId())) {
             throw new IllegalStateException("User is not the responsible for this task");
         }
 
-        // Vérifier que la tâche est terminée (Done)
         if (task.getStatus() != status.Done) {
             throw new IllegalStateException("Task must be in Done status to assign a note");
         }
 
-        // Valider la note (par exemple, entre 0 et 100)
         if (note < 0 || note > 100) {
             throw new IllegalArgumentException("Note must be between 0 and 100");
         }
 
-        // Mettre à jour la note
         task.setNote(note);
         task updatedTask = taskRepository.save(task);
         return mapToDTO(updatedTask);

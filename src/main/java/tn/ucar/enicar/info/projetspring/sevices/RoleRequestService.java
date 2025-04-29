@@ -1,9 +1,6 @@
 package tn.ucar.enicar.info.projetspring.sevices;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.config.Task;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,26 +22,23 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RoleRequestService {
-    private static final Logger logger = LoggerFactory.getLogger(RoleRequestService.class);
     private final RoleRequestRepository roleRequestRepository;
     private final userRepo userRepository;
     private final TaskRepository taskRepository;
     private final TeamRepository teamRepository;
     private final EventRepository eventRepository;
     private final CandidatureRepository candidatureRepository;
-    private final String uploadDir = "uploads/cvs/"; // Répertoire pour stocker les CVs
+    private final String uploadDir = "Uploads/cvs/";
 
-    // Étape 2 : Créer une demande pour devenir RESPONSIBLE
-    public RoleRequestDTO createRoleRequest(RoleRequestInputDTO input, User user) {
+    public RoleRequestDTO createRoleRequest(RoleRequestInputDTO input, String experience, String description, User user) {
         Role requestedRole = Role.valueOf(input.getRequestedRole());
 
-        // Valider l'événement
-        event event = input.getEventId() != null
-                ? eventRepository.findById(input.getEventId())
-                .orElseThrow(() -> new IllegalArgumentException("Event not found"))
-                : null;
+        if (requestedRole == Role.RESPONSIBLE && input.getEventId() == null) {
+            throw new IllegalArgumentException("Event ID is required for RESPONSIBLE role");
+        }
+        event event = eventRepository.findById(input.getEventId())
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
-        // Valider l'équipe pour RESPONSIBLE
         Team team = null;
         if (requestedRole == Role.RESPONSIBLE) {
             if (input.getTeamId() == null) {
@@ -53,6 +47,26 @@ public class RoleRequestService {
             team = teamRepository.findById(input.getTeamId())
                     .orElseThrow(() -> new IllegalArgumentException("Team not found"));
 
+            if (team.getEvent() == null || team.getEvent().getId() != input.getEventId()) {
+                throw new IllegalArgumentException("Team is not associated with the specified event");
+            }
+        }
+
+        Candidature candidature = null;
+        if (requestedRole == Role.RESPONSIBLE) {
+            if (description == null || description.isBlank()) {
+                throw new IllegalArgumentException("Description is required for RESPONSIBLE role application");
+            }
+            if (experience == null || experience.isBlank()) {
+                throw new IllegalArgumentException("Experience is required for RESPONSIBLE role application");
+            }
+
+            candidature = Candidature.builder()
+                    .description(description)
+                    .experience(experience)
+                    .submittedAt(LocalDateTime.now())
+                    .build();
+            candidature = candidatureRepository.save(candidature);
         }
 
         RoleRequest roleRequest = RoleRequest.builder()
@@ -63,13 +77,13 @@ public class RoleRequestService {
                 .team(team)
                 .task(input.getTaskId() != null ? taskRepository.findById(input.getTaskId())
                         .orElseThrow(() -> new IllegalArgumentException("Task not found")) : null)
+                .candidature(candidature)
                 .build();
 
         RoleRequest savedRequest = roleRequestRepository.save(roleRequest);
         return mapToDTO(savedRequest);
     }
 
-    // Étape 3 : Admin approuve/rejette une demande de RESPONSIBLE
     @PreAuthorize("hasRole('ADMIN')")
     public RoleRequestDTO reviewRoleRequest(Long requestId, String status, String comments) {
         RoleRequest roleRequest = roleRequestRepository.findById(requestId)
@@ -98,25 +112,20 @@ public class RoleRequestService {
     }
 
     public RoleRequestDTO createVolunteerRequest(RoleRequestInputDTO input, MultipartFile cv, User user) {
-        // Valider le rôle demandé
         if (!input.getRequestedRole().equals(Role.VOLUNTARY.name())) {
             throw new IllegalArgumentException("Invalid role requested for volunteer application");
         }
 
-        // Valider la tâche
         task task = taskRepository.findById(input.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        // Valider l'événement associé à la tâche
         event event = task.getEvent();
         if (event == null) {
             throw new IllegalArgumentException("Task is not associated with an event");
         }
 
-        // Sauvegarder le CV
         String cvPath = saveCvFile(cv);
 
-        // Créer une candidature
         Candidature candidature = Candidature.builder()
                 .description(input.getDescription())
                 .cvPath(cvPath)
@@ -124,7 +133,6 @@ public class RoleRequestService {
                 .build();
         Candidature savedCandidature = candidatureRepository.save(candidature);
 
-        // Créer la demande de rôle
         RoleRequest roleRequest = RoleRequest.builder()
                 .requestedRole(Role.VOLUNTARY)
                 .status(RequestStatus.PENDING)
@@ -138,30 +146,6 @@ public class RoleRequestService {
         return mapToDTO(savedRequest);
     }
 
-    // Méthode pour sauvegarder le CV
-    private String saveCvFile(MultipartFile cv) {
-        try {
-            // Créer le répertoire si nécessaire
-            File uploadDirFile = new File(uploadDir);
-            if (!uploadDirFile.exists()) {
-                uploadDirFile.mkdirs();
-            }
-
-            // Générer un nom de fichier unique
-            String originalFileName = cv.getOriginalFilename();
-            String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".")) : ".pdf";
-            String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
-            Path filePath = Paths.get(uploadDir, uniqueFileName);
-
-            // Sauvegarder le fichier
-            Files.write(filePath, cv.getBytes());
-            return filePath.toString();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save CV file", e);
-        }
-    }
-
-    /// /////////////////////////////////////////////
     @PreAuthorize("hasRole('RESPONSIBLE')")
     public RoleRequestDTO reviewVolunteerRequest(Long requestId, String status, String comments) {
         RoleRequest roleRequest = roleRequestRepository.findById(requestId)
@@ -170,9 +154,8 @@ public class RoleRequestService {
         RequestStatus requestStatus = RequestStatus.valueOf(status.toUpperCase());
         roleRequest.setStatus(requestStatus);
         roleRequest.setComments(comments);
-        // Vérifier que la demande est pour VOLUNTARY
+
         if (requestStatus == RequestStatus.APPROVED && roleRequest.getRequestedRole() == Role.VOLUNTARY) {
-            // Si approuvé, assigner le rôle VOLUNTARY et ajouter l'utilisateur à la tâche
             User user = roleRequest.getUser();
             user.setRole(Role.VOLUNTARY);
 
@@ -191,9 +174,7 @@ public class RoleRequestService {
         return mapToDTO(updatedRequest);
     }
 
-    // Liste des candidatures VOLUNTARY en attente
     public List<RoleRequestDTO> getPendingVolunteerCandidatures(User responsible) {
-
         List<Long> taskIds = taskRepository.findByResponsible(responsible)
                 .stream()
                 .map(task::getId)
@@ -205,9 +186,7 @@ public class RoleRequestService {
                 .collect(Collectors.toList());
     }
 
-    // Liste des demandes en attente
     public List<RoleRequestDTO> getPendingRequests(User user) {
-
         if (user.getRole() == Role.ADMIN) {
             return roleRequestRepository.findByStatus(RequestStatus.PENDING)
                     .stream()
@@ -226,7 +205,25 @@ public class RoleRequestService {
         return List.of();
     }
 
-    // Mapper RoleRequest à RoleRequestDTO
+    private String saveCvFile(MultipartFile cv) {
+        try {
+            File uploadDirFile = new File(uploadDir);
+            if (!uploadDirFile.exists()) {
+                uploadDirFile.mkdirs();
+            }
+
+            String originalFileName = cv.getOriginalFilename();
+            String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".")) : ".pdf";
+            String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+            Path filePath = Paths.get(uploadDir, uniqueFileName);
+
+            Files.write(filePath, cv.getBytes());
+            return filePath.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save CV file", e);
+        }
+    }
+
     private RoleRequestDTO mapToDTO(RoleRequest roleRequest) {
         return RoleRequestDTO.builder()
                 .id(roleRequest.getId())

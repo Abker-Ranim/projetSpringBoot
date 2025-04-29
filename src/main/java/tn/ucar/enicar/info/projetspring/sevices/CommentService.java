@@ -1,8 +1,6 @@
 package tn.ucar.enicar.info.projetspring.sevices;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import tn.ucar.enicar.info.projetspring.auth.CommentRequestDTO;
@@ -21,15 +19,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-    private static final Logger logger = LoggerFactory.getLogger(CommentService.class);
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final userRepo userRepository;
 
     @PreAuthorize("hasAnyRole('RESPONSIBLE', 'VOLUNTARY')")
     public CommentResponseDTO createComment(CommentRequestDTO request, User user) {
-        logger.info("Creating comment for task ID: {} by user: {}", request.getTaskId(), user.getEmail());
-
         // Validate task
         task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
@@ -54,8 +49,6 @@ public class CommentService {
     }
 
     public List<CommentResponseDTO> getCommentsByTaskId(Long taskId) {
-        logger.info("Fetching all comments for task ID: {}", taskId);
-
         // Validate task
         task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));

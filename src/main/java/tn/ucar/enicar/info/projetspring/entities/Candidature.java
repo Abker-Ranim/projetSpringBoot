@@ -20,6 +20,7 @@ public class Candidature implements Serializable {
 
     @Column(columnDefinition = "TEXT")
     private String description; // Motivation ou détails de la candidature
+    private String experience;
 
     private String cvPath; // Chemin ou URL du CV (ex. "/uploads/cvs/123.pdf")
 

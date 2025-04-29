@@ -2,6 +2,7 @@ package tn.ucar.enicar.info.projetspring.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
@@ -19,21 +20,23 @@ public class Team implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Le nom de l'équipe est obligatoire")
     private String name;
 
+    @NotBlank(message = "La description de l'équipe est obligatoire")
     private String description;
 
     @ManyToOne
     @JsonIgnore
-    private User responsible; // Le responsable de l'équipe
+    private User responsible;
 
     @ManyToOne
     @JsonIgnore
-    private event event; // L'événement auquel l'équipe est rattachée
+    private event event;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Set<task> tasks = new HashSet<>(); // Tâches associées à l'équipe
+    private Set<task> tasks = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -42,5 +45,5 @@ public class Team implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    private Set<User> volunteers = new HashSet<>(); // Volontaires approuvés dans l'équipe
+    private Set<User> volunteers = new HashSet<>();
 }
