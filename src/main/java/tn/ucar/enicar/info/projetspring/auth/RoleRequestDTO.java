@@ -14,9 +14,12 @@ public class RoleRequestDTO {
     private String status;
     private String comments;
     private String userEmail;
-    private Long eventId;
-    private Long taskId;
+    private String eventTitle; // Changed from eventId
+    private String taskTitle;  // Changed from taskId
+    private String teamName;
     private Long teamId;
+    private String experience;
+    private String userName; // Pour VOLUNTARY
     private String description; // Pour VOLUNTARY
     private String cvPath; // Pour VOLUNTARY
     private LocalDateTime submittedAt; // Pour VOLUNTARY

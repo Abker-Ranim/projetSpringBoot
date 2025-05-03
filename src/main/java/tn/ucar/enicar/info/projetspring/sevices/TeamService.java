@@ -52,7 +52,12 @@ public class TeamService {
         }
         teamRepository.deleteById(teamId);
     }
-
+    public List<TeamDTO> getAllTeams() {
+        return teamRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
     public List<TeamDTO> getTeamsByEventId(Long eventId) {
         event event = eventService.getEventById(eventId);
         List<Team> teams = teamRepository.findByEvent(event);

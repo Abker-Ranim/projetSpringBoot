@@ -26,13 +26,14 @@ public class EventController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'VOLUNTARY', 'RESPONSIBLE')")
     public ResponseEntity<List<event>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
     }
 
     @GetMapping("/{eventId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'VOLUNTARY', 'RESPONSIBLE')")
+
     public ResponseEntity<event> getEventById(@PathVariable Long eventId) {
         return ResponseEntity.ok(eventService.getEventById(eventId));
     }

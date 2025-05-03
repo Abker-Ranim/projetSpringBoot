@@ -16,7 +16,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"users", "responsibles", "tasks",})
 public class event implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +44,9 @@ public class event implements Serializable{
     private String organization;
     private String vision;
     private String imagePath;
-
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
+    private Date createdAt;
 
     @ManyToMany(mappedBy="events", cascade = CascadeType.ALL)
     private Set<User> users;
@@ -65,6 +67,5 @@ public class event implements Serializable{
     @JsonIgnore
     private Set<task> tasks;
 
-    @OneToOne
-    private discussion discussion;
+
 }

@@ -29,6 +29,14 @@ public class task implements Serializable{
     @Enumerated(EnumType.STRING)
     private status Status ;
     private Integer note ;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
+    private Date completedAt;
+
 
     // Responsable qui a créé la tâche
     @ManyToOne
@@ -55,6 +63,7 @@ public class task implements Serializable{
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<comment> comments = new ArrayList<>();
+
 
 
 }

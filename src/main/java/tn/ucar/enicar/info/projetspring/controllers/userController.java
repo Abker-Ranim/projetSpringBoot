@@ -26,4 +26,5 @@ public class userController {
             @AuthenticationPrincipal User authenticatedUser) {
         return ResponseEntity.ok(userService.calculateUserScore(userId));
     }
+
 }

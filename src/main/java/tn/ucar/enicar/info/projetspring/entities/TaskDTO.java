@@ -21,12 +21,18 @@ public class TaskDTO {
     private String description;
     private Date deadline;
     private status Status;
-    private int note ;
+    private Integer note;
+    private Date createdAt;
+    private Date completedAt;
     private Long eventId;
     private Long teamId;
     private Integer responsibleId;
-    private String responsibleUsername;
+    private String responsibleName;
+    private String volunteerName;
     private Set<Integer> volunteerIds;
+
+
+
 
 
 }

@@ -2,6 +2,7 @@ package tn.ucar.enicar.info.projetspring.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -24,8 +25,9 @@ public class RoleRequest {
 
     private String comments;
 
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne

@@ -65,8 +65,7 @@ import org.springframework.security.core.userdetails.UserDetails;
     @ManyToMany(cascade = CascadeType.ALL)
     private Set<notification> notifications;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="user")
-    private Set<message> messages;
+
     @OneToMany(mappedBy = "responsible")
     @JsonIgnore
     private Set<Team> responsibleTeams;

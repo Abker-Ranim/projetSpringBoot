@@ -28,7 +28,7 @@ public class RoleRequestService {
     private final TeamRepository teamRepository;
     private final EventRepository eventRepository;
     private final CandidatureRepository candidatureRepository;
-    private final String uploadDir = "Uploads/cvs/";
+    private final String uploadDir = "uploads/cvs/";
 
     public RoleRequestDTO createRoleRequest(RoleRequestInputDTO input, String experience, String description, User user) {
         Role requestedRole = Role.valueOf(input.getRequestedRole());
@@ -123,8 +123,12 @@ public class RoleRequestService {
         if (event == null) {
             throw new IllegalArgumentException("Task is not associated with an event");
         }
+        Team team = task.getTeam();
 
-        String cvPath = saveCvFile(cv);
+        String cvPath = null;
+        if (cv != null && !cv.isEmpty()) {
+            cvPath = saveCvFile(cv);
+        }
 
         Candidature candidature = Candidature.builder()
                 .description(input.getDescription())
@@ -139,13 +143,13 @@ public class RoleRequestService {
                 .user(user)
                 .event(event)
                 .task(task)
+                .team(team)
                 .candidature(savedCandidature)
                 .build();
 
         RoleRequest savedRequest = roleRequestRepository.save(roleRequest);
         return mapToDTO(savedRequest);
     }
-
     @PreAuthorize("hasRole('RESPONSIBLE')")
     public RoleRequestDTO reviewVolunteerRequest(Long requestId, String status, String comments) {
         RoleRequest roleRequest = roleRequestRepository.findById(requestId)
@@ -172,18 +176,6 @@ public class RoleRequestService {
         }
         RoleRequest updatedRequest = roleRequestRepository.save(roleRequest);
         return mapToDTO(updatedRequest);
-    }
-
-    public List<RoleRequestDTO> getPendingVolunteerCandidatures(User responsible) {
-        List<Long> taskIds = taskRepository.findByResponsible(responsible)
-                .stream()
-                .map(task::getId)
-                .collect(Collectors.toList());
-        return roleRequestRepository.findByStatusAndTaskIdIn(RequestStatus.PENDING, taskIds)
-                .stream()
-                .filter(r -> r.getRequestedRole() == Role.VOLUNTARY)
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
     }
 
     public List<RoleRequestDTO> getPendingRequests(User user) {
@@ -218,22 +210,73 @@ public class RoleRequestService {
             Path filePath = Paths.get(uploadDir, uniqueFileName);
 
             Files.write(filePath, cv.getBytes());
-            return filePath.toString();
+            return uniqueFileName;
         } catch (IOException e) {
             throw new RuntimeException("Failed to save CV file", e);
         }
     }
+//
+public List<RoleRequestDTO> getPendingRequestsByUser(User user) {
+    return roleRequestRepository.findByUser(user)
+            .stream()
+            .map(this::mapToDTO)
+            .collect(Collectors.toList());
+}
+
+
+//
+public List<RoleRequestDTO> getVolunteerRequestsByResponsible(User responsible) {
+    // Récupérer les IDs des tâches créées par le responsable
+    List<Long> taskIds = taskRepository.findByResponsible(responsible)
+            .stream()
+            .map(task::getId)
+            .collect(Collectors.toList());
+
+    // Récupérer toutes les candidatures VOLUNTARY pour ces tâches
+    return roleRequestRepository.findByRequestedRoleAndTaskIdIn(Role.VOLUNTARY, taskIds)
+            .stream()
+            .map(this::mapToDTO)
+            .collect(Collectors.toList());
+}
+///
+public RoleRequestDTO getRoleRequestById(Long id) {
+    RoleRequest roleRequest = roleRequestRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Role request not found"));
+    return mapToDTO(roleRequest);
+}
 
     private RoleRequestDTO mapToDTO(RoleRequest roleRequest) {
+        String userEmail = roleRequest.getUser() != null ? roleRequest.getUser().getEmail() : "N/A";
+        String userName = roleRequest.getUser() != null
+                ? roleRequest.getUser().getFirstname() + " " + roleRequest.getUser().getLastname()
+                : "N/A";
+        if (roleRequest.getUser() == null) {
+            return RoleRequestDTO.builder()
+                    .id(roleRequest.getId())
+                    .requestedRole(roleRequest.getRequestedRole().name())
+                    .status(roleRequest.getStatus().name())
+                    .comments(roleRequest.getComments())
+                    .userEmail(userEmail)
+                    .userName(userName)
+                    .eventTitle(roleRequest.getEvent() != null ? roleRequest.getEvent().getTitle() : null)
+                    .taskTitle(roleRequest.getTask() != null ? roleRequest.getTask().getTitle() : null)
+                    .teamName(roleRequest.getTeam() != null ? roleRequest.getTeam().getName() : null)
+                    .description(roleRequest.getCandidature() != null ? roleRequest.getCandidature().getDescription() : null)
+                    .cvPath(roleRequest.getCandidature() != null ? roleRequest.getCandidature().getCvPath() : null)
+                    .submittedAt(roleRequest.getCandidature() != null ? roleRequest.getCandidature().getSubmittedAt() : null)
+                    .build();
+        }
+
         return RoleRequestDTO.builder()
                 .id(roleRequest.getId())
                 .requestedRole(roleRequest.getRequestedRole().name())
                 .status(roleRequest.getStatus().name())
                 .comments(roleRequest.getComments())
                 .userEmail(roleRequest.getUser().getEmail())
-                .taskId(roleRequest.getTask() != null ? roleRequest.getTask().getId() : null)
-                .teamId(roleRequest.getTeam() != null ? roleRequest.getTeam().getId() : null)
-                .eventId(roleRequest.getEvent() != null ? roleRequest.getEvent().getId() : null)
+                .userName(userName)
+                .eventTitle(roleRequest.getEvent() != null ? roleRequest.getEvent().getTitle() : null)
+                .taskTitle(roleRequest.getTask() != null ? roleRequest.getTask().getTitle() : null)
+                .teamName(roleRequest.getTeam() != null ? roleRequest.getTeam().getName() : null)
                 .description(roleRequest.getCandidature() != null ? roleRequest.getCandidature().getDescription() : null)
                 .cvPath(roleRequest.getCandidature() != null ? roleRequest.getCandidature().getCvPath() : null)
                 .submittedAt(roleRequest.getCandidature() != null ? roleRequest.getCandidature().getSubmittedAt() : null)

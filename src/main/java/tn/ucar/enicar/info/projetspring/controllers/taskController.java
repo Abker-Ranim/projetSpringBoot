@@ -26,12 +26,12 @@ public class TaskController {
             @AuthenticationPrincipal User responsible) {
         return ResponseEntity.ok(taskService.createTask(taskDTO, responsible));
     }
-
-    // Liste des tâches par événement
-    @GetMapping("/event/{eventId}")
-    public ResponseEntity<List<TaskDTO>> getTasksByEvent(@PathVariable Long eventId) {
-        return ResponseEntity.ok(taskService.getTasksByEvent(eventId));
+    @GetMapping("/responsible")
+    @PreAuthorize("hasRole('RESPONSIBLE')")
+    public ResponseEntity<List<TaskDTO>> getTasksByResponsible(@AuthenticationPrincipal User responsible) {
+        return ResponseEntity.ok(taskService.getTasksByResponsible(responsible));
     }
+
     // Nouveau : Volontaire modifie le statut d'une tâche
     @PutMapping("/{taskId}/update-status")
     @PreAuthorize("hasRole('VOLUNTARY')")
@@ -42,6 +42,11 @@ public class TaskController {
         return ResponseEntity.ok(taskService.updateTaskStatus(taskId, newStatus, volunteer));
     }
 
+    @GetMapping
+    public ResponseEntity<List<TaskDTO>> getAllTasks() {
+        return ResponseEntity.ok(taskService.getAllTasks());
+    }
+
     // Nouveau : Responsable attribue une note à une tâche terminée
     @PutMapping("/{taskId}/assign-note")
     @PreAuthorize("hasRole('RESPONSIBLE')")
@@ -50,5 +55,12 @@ public class TaskController {
             @RequestParam int note,
             @AuthenticationPrincipal User responsible) {
         return ResponseEntity.ok(taskService.assignTaskNote(taskId, note, responsible));
+    }
+
+    // task par volontaire
+    @GetMapping("/volunteer")
+    @PreAuthorize("hasRole('VOLUNTARY')")
+    public ResponseEntity<List<TaskDTO>> getTasksByVolunteer(@AuthenticationPrincipal User volunteer) {
+        return ResponseEntity.ok(taskService.getTasksByVolunteer(volunteer));
     }
 }

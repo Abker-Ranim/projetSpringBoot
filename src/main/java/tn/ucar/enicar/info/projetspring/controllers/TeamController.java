@@ -44,4 +44,9 @@ public class TeamController {
     public ResponseEntity<List<TeamDTO>> getTeamsByEventId(@PathVariable Long eventId) {
         return ResponseEntity.ok(teamService.getTeamsByEventId(eventId));
     }
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESPONSIBLE')")
+    public ResponseEntity<List<TeamDTO>> getAllTeams() {
+        return ResponseEntity.ok(teamService.getAllTeams());
+    }
 }

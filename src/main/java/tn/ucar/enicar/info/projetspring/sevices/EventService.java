@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
-    private final String uploadDir = "Uploads/images/";
+    private final String uploadDir = "uploads/images/";
 
     public event createEvent(event event, MultipartFile image) {
         if (image != null && !image.isEmpty()) {
@@ -80,7 +80,10 @@ public class EventService {
             Path filePath = Paths.get(uploadDir, uniqueFileName);
 
             Files.write(filePath, image.getBytes());
-            return filePath.toString();
+            // Normaliser le chemin avec des barres obliques
+            String normalizedPath = "uploads/images/" + uniqueFileName;
+            System.out.println("Saved image path: " + normalizedPath); // Log pour déboguer
+            return normalizedPath;
         } catch (IOException e) {
             throw new RuntimeException("Failed to save image file", e);
         }
