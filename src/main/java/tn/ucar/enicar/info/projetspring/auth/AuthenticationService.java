@@ -92,4 +92,9 @@ public class    AuthenticationService {
                 .build();
         tokenRepository.save(token);
     }
+
+    public void logout(User user) {
+        System.out.println("Logging out user: " + user.getEmail());
+        revokeAllUserTokens(user);
+    }
 }

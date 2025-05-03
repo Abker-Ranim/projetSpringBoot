@@ -6,6 +6,9 @@
     import org.springframework.web.bind.annotation.RequestBody;
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RestController;
+    import org.springframework.security.core.annotation.AuthenticationPrincipal;
+    import tn.ucar.enicar.info.projetspring.entities.User;
+
 
     @RestController
     @RequestMapping("/api/v1/auth")
@@ -28,5 +31,11 @@
                 @RequestBody AuthenticationRequest request
         ) {
             return ResponseEntity.ok(service.authenticate(request));
+        }
+
+        @PostMapping("/logout")
+        public ResponseEntity<String> logout(@AuthenticationPrincipal User user) {
+            service.logout(user);
+            return ResponseEntity.ok("Successfully logged out");
         }
     }

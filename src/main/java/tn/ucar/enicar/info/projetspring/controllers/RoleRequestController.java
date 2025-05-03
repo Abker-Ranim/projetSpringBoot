@@ -87,4 +87,19 @@ public class RoleRequestController {
         RoleRequestDTO roleRequestDTO = roleRequestService.getRoleRequestById(id);
         return ResponseEntity.ok(roleRequestDTO);
     }
+
+    // New endpoint: Get team responsible requests for a specific user
+    @GetMapping("/team-responsible-by-user")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<RoleRequestDTO>> getTeamResponsibleRequestsByUser(
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(roleRequestService.getTeamResponsibleRequestsByUser(user));
+    }
+
+    // New endpoint: Get all team responsible requests
+    @GetMapping("/team-responsible-all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RoleRequestDTO>> getAllTeamResponsibleRequests() {
+        return ResponseEntity.ok(roleRequestService.getAllTeamResponsibleRequests());
+    }
 }

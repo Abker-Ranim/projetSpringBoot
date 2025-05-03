@@ -238,7 +238,22 @@ public List<RoleRequestDTO> getVolunteerRequestsByResponsible(User responsible) 
             .map(this::mapToDTO)
             .collect(Collectors.toList());
 }
-///
+
+    // New method: Get team responsible requests for a specific user
+    public List<RoleRequestDTO> getTeamResponsibleRequestsByUser(User user) {
+        return roleRequestRepository.findByUserAndRequestedRole(user, Role.RESPONSIBLE)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // New method: Get all team responsible requests
+    public List<RoleRequestDTO> getAllTeamResponsibleRequests() {
+        return roleRequestRepository.findByRequestedRole(Role.RESPONSIBLE)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
 public RoleRequestDTO getRoleRequestById(Long id) {
     RoleRequest roleRequest = roleRequestRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Role request not found"));

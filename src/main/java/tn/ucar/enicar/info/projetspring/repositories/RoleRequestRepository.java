@@ -13,4 +13,6 @@ public interface RoleRequestRepository extends JpaRepository<RoleRequest, Long> 
     List<RoleRequest> findByStatusAndTaskIdIn(RequestStatus status, List<Long> taskIds);
     List<RoleRequest> findByUser(User user);
     List<RoleRequest> findByRequestedRoleAndTaskIdIn(Role requestedRole, List<Long> taskIds);
+    List<RoleRequest> findByUserAndRequestedRole(User user, Role requestedRole);
+    List<RoleRequest> findByRequestedRole(Role requestedRole);
 }
