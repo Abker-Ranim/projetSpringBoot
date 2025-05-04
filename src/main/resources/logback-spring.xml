@@ -1,0 +1,19 @@
+<configuration>
+    <!-- Appender pour afficher les logs dans la console -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Format des logs : date, niveau, message -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger pour le package de votre projet -->
+    <logger name="tn.ucar.enicar.info.projetspring" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Logger racine (pour capturer les logs non spécifiques) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

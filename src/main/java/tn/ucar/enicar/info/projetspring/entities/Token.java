@@ -1,24 +1,25 @@
 package tn.ucar.enicar.info.projetspring.entities;
+
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.io.Serializable;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-public class message implements Serializable {
+@Builder
+public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String content;
-
+    private String token;
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType;
+    private boolean expired;
+    private boolean revoked;
     @ManyToOne
-    user user;
+    @JoinColumn(name="user_id")
+    private User user;
 
-    @ManyToOne
-    discussion discussion;
 }

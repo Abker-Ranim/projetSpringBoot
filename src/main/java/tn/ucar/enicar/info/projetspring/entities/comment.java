@@ -1,24 +1,31 @@
 package tn.ucar.enicar.info.projetspring.entities;
+
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-public class comment implements Serializable{
+public class comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
+    @Column(nullable = false)
     private String content;
 
     @ManyToOne
-    user user;
+    @JoinColumn(name = "task_id", nullable = false)
+    private task task;
 
     @ManyToOne
-    task task;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 }
